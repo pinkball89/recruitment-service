@@ -10,6 +10,7 @@ public class EmployerCreateRequestDTO {
     private static final int MAX_EMAIL_LENGTH = 255;
     private static final int MAX_NAME_LENGTH = 255;
 
+    public EmployerCreateRequestDTO(){}
     public EmployerCreateRequestDTO(String email, String name, int provinceId, String description) {
         this.email = email;
         this.name = name;

@@ -15,14 +15,41 @@ import java.util.stream.Collectors;
 @Service
 public class EmployerService {
 
+    public static int currentId = 100;
+    private final Map<Integer, Employer> employers = new HashMap<>();
+    public EmployerService() {
+        // Dummy data initialization
+        initializeDummyData();
+    }
+
+    // Initialize dummy data
+    private void initializeDummyData() {
+        // Add some dummy products to the map
+        for (int i = 1; i <= 100; i++) {
+            Employer employer = new Employer();
+            employer.setId(i);
+            employer.setEmail(i + "@gmail.com");
+            employer.setName("Employer  " + i);
+            employer.setProvince(10 * i);
+            employer.setDescription("Description of employer  " + i);
+            employers.put(i, employer);
+        }
+    }
+
     public static class BadInputException extends RuntimeException {
         public BadInputException(String message) {
             super(message);
         }
     }
 
-    private final EmployerRepository employerRepository;
+    public static class NotFoundException extends RuntimeException {
+        public NotFoundException(String message) {
+            super(message);
+        }
+    }
 
+
+    private EmployerRepository employerRepository;
     @Autowired
     public EmployerService(EmployerRepository employerRepository) {
         this.employerRepository = employerRepository;
@@ -34,7 +61,6 @@ public class EmployerService {
         if (!validationErrors.isEmpty()) {
             throw new BadInputException(validationErrors.toString());
         }
-
         // Check email uniqueness
         if (employerRepository.existsByEmail(request.getEmail())) {
             throw new BadInputException("Email " + request.getEmail() + " already exists");
@@ -48,6 +74,7 @@ public class EmployerService {
 
         // Create Employer object
         Employer employer = new Employer();
+        employer.setId(currentId++);
         employer.setEmail(request.getEmail());
         employer.setName(request.getName());
         employer.setProvince(request.getProvinceId());
@@ -61,48 +88,15 @@ public class EmployerService {
         return employer;
     }
 
-//    public ApiResponseDTO createEmployer(EmployerCreateRequestDTO request) {
-//        // Validate input data
-//        List<String> validationErrors = request.validate();
-//        if (!validationErrors.isEmpty()) {
-//            return new ApiResponseDTO(400, "Bad Request", validationErrors.toString(), null);
-//        }
-//
-//        // Check email uniqueness
-//        if (employerRepository.existsByEmail(request.getEmail())) {
-//            return new ApiResponseDTO(400, "Bad Request", "Email already exists", null);
-//        }
-//        // Check existence of provinceId
-//        if (!employerRepository.existsByProvinceID(request.getProvinceId())) {
-//            return new ApiResponseDTO(400, "Bad Request", "Province ID does not exist", null);
-//        }
-//        // Generate timestamps for created_at and updated_at
-//        Date now = new Date();
-//
-//        // Create Employer object
-//        Employer employer = new Employer();
-//        employer.setEmail(request.getEmail());
-//        employer.setName(request.getName());
-//        employer.setProvince(request.getProvinceId());
-//        employer.setDescription(request.getDescription());
-//        employer.setCreated_at(now);
-//        employer.setUpdated_at(now);
-//
-//        // Call repository layer to create employer
-//        employerRepository.save(employer);
-//
-//        return new ApiResponseDTO(201, "Created", "Employer created successfully", null);
-//    }
-
-    public ApiResponseDTO updateEmployer(long id, EmployerUpdateRequestDTO request) {
+    public Employer updateEmployer(long id, EmployerUpdateRequestDTO request) {
         //validate input data
         List<String> validationErrors = request.validateUpdate(id);
         if (!validationErrors.isEmpty()) {
-            return new ApiResponseDTO(400, "Bad Request", validationErrors.toString(), null);
+            throw new BadInputException(validationErrors.toString());
         }
         //Check if employer id exists
         if (!employerRepository.existsById(id)) {
-            return new ApiResponseDTO(404, "Not Found", "Employer not found", null);
+            throw new NotFoundException("Employer ID " + id + " Not Found");
         }
         //Update employer information
         Employer employer = employerRepository.findById(id);
@@ -114,40 +108,37 @@ public class EmployerService {
         // Call repository layer to update employer
         employerRepository.save(employer);
 
-        return new ApiResponseDTO(200, "OK", "Employer updated successfully", null);
+        return employer;
     }
 
-    public ApiResponseDTO getEmployer(long id) {
+    public Employer getEmployer(long id) {
         if (!employerRepository.existsById(id)) {
-            return new ApiResponseDTO(404, "Not Found", "Employer not found", null);
+            throw new NotFoundException("Employer ID " + id + " Not Found");
         }
 
         Employer employer = employerRepository.findById(id);
         EmployerResponseDTO responseDTO = mapToResponseDTO(employer);
 
-        return new ApiResponseDTO(200, "OK", "Employer retrieved successfully", responseDTO);
+        return employer;
     }
 
-    public ApiResponseDTO listEmployers(int page, int pageSize) {
+    public List<EmployerResponseDTO> listEmployers(int page, int pageSize) {
         List<Employer> employers = employerRepository.findAll(page, pageSize);
         List<EmployerResponseDTO> employerDTOs = employers.stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
 
-        EmployerListResponseDTO responseDTO = new EmployerListResponseDTO();
-        responseDTO.setData(employerDTOs);
-
-        return new ApiResponseDTO(200, "OK", "Employers retrieved successfully", responseDTO);
+        return employerDTOs;
     }
 
-    public ApiResponseDTO deleteEmployer(long id) {
+    public Employer deleteEmployer(long id) {
         if (!employerRepository.existsById(id)) {
-            return new ApiResponseDTO(404, "Not Found", "Employer not found", null);
+            throw new NotFoundException("Employer ID " + id + " Not Found");
         }
-
+        Employer employer = employerRepository.findById(id);
         employerRepository.deleteById(id);
 
-        return new ApiResponseDTO(200, "OK", "Employer deleted successfully", null);
+        return employer;
     }
 
     private EmployerResponseDTO mapToResponseDTO(Employer employer) {
@@ -159,6 +150,10 @@ public class EmployerService {
         responseDTO.setProvinceName(getProvinceName(employer.getProvince()));
         responseDTO.setDescription(employer.getDescription());
         return responseDTO;
+    }
+
+    private String getProvinceName(int province) {
+        return "Not know yet";
     }
 
 }

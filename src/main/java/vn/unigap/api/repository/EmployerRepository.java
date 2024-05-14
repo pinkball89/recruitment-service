@@ -14,4 +14,6 @@ public interface EmployerRepository {
     Employer findById(long id);
 
     List<Employer> findAll(int page, int pageSize);
+
+    void deleteById(long id);
 }
