@@ -33,27 +33,14 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<version>3.1.11</version>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.validation</groupId>
-			<artifactId>jakarta.validation-api</artifactId>
-			<version>2.0.2</version>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
 		</dependency>
-		<!-- Bean Validation API -->
-<!--		<dependency>-->
-<!--			<groupId>javax.validation</groupId>-->
-<!--			<artifactId>validation-api</artifactId>-->
-<!--			<version>2.0.1.Final</version>-->
-<!--		</dependency>-->
-
-<!--		&lt;!&ndash; Hibernate Validator (implementation of Bean Validation API) &ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>org.hibernate.validator</groupId>-->
-<!--			<artifactId>hibernate-validator</artifactId>-->
-<!--			<version>6.2.0.Final</version>-->
-<!--		</dependency>-->
 	</dependencies>
 
 	<build>

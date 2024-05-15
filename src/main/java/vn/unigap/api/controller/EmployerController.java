@@ -29,7 +29,7 @@ public class EmployerController {
         try {
             Employer employer = employerService.createEmployer(requestCreateDTO);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponseDTO(201, "Created", "Employer created successfully", employer));
+                    .body(new ApiResponseDTO(0, 201, "Employer created successfully", employer));
 
         } catch (Exception e) {
             return toApiResponse(e);
@@ -40,11 +40,11 @@ public class EmployerController {
         if (e instanceof EmployerService.BadInputException) {
             //Catching our own BadInputException
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseDTO(400, "Bad Request", e.getMessage(), null));
+                    .body(new ApiResponseDTO(1, 400, e.getMessage(), null));
         } else {
             //Catching any exception that is not created intentionally
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(new ApiResponseDTO(500, "Server error", e.getMessage(), null));
+                    body(new ApiResponseDTO(1, 500, e.getMessage(), null));
         }
     }
 
@@ -54,7 +54,7 @@ public class EmployerController {
         //Update employer
         try {
             Employer employer = employerService.updateEmployer(id, requestUpdateDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(200, "OK", "Employer updated " +
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employer updated " +
                     "successfully", employer));
         } catch (Exception e) {
             return toApiResponse(e);
@@ -65,7 +65,8 @@ public class EmployerController {
     public ResponseEntity<ApiResponseDTO> getEmployer(@PathVariable long id) {
         try {
             Employer employer = employerService.getEmployer(id);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(200, "OK", "Employer retrieved" +
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employer " +
+                    "retrieved" +
                     " successfully", employer));
         } catch (Exception e) {
             return toApiResponse(e);
@@ -77,7 +78,7 @@ public class EmployerController {
                                                         @RequestParam(defaultValue = "10") int pageSize) {
         try {
             List<EmployerResponseDTO> employerResponseDTO = employerService.listEmployers(page, pageSize);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(200, "OK", "Employers " +
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employers " +
                     "retrieved successfully", employerResponseDTO));
 
         } catch (Exception e) {
@@ -90,7 +91,7 @@ public class EmployerController {
     public ResponseEntity<ApiResponseDTO> deleteEmployer(@PathVariable long id) {
         try {
             Employer employer = employerService.deleteEmployer(id);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(200, "OK", "Employer " +
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employer " +
                     "deleted successfully", employer));
         } catch (Exception e) {
             return toApiResponse(e);

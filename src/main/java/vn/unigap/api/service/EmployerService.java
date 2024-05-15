@@ -4,37 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import vn.unigap.api.dto.in.EmployerCreateRequestDTO;
 import vn.unigap.api.dto.in.EmployerUpdateRequestDTO;
-import vn.unigap.api.dto.out.ApiResponseDTO;
 import vn.unigap.api.dto.out.EmployerResponseDTO;
 import vn.unigap.api.entity.Employer;
 import vn.unigap.api.repository.EmployerRepository;
+import vn.unigap.api.repository.ProvinceRepository;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 @Service
 public class EmployerService {
-
-    public static int currentId = 100;
-    private final Map<Integer, Employer> employers = new HashMap<>();
-    public EmployerService() {
-        // Dummy data initialization
-        initializeDummyData();
-    }
-
-    // Initialize dummy data
-    private void initializeDummyData() {
-        // Add some dummy products to the map
-        for (int i = 1; i <= 100; i++) {
-            Employer employer = new Employer();
-            employer.setId(i);
-            employer.setEmail(i + "@gmail.com");
-            employer.setName("Employer  " + i);
-            employer.setProvince(10 * i);
-            employer.setDescription("Description of employer  " + i);
-            employers.put(i, employer);
-        }
-    }
+    private final ProvinceRepository provinceRepository;
+    private final EmployerRepository employerRepository;
 
     public static class BadInputException extends RuntimeException {
         public BadInputException(String message) {
@@ -49,9 +31,9 @@ public class EmployerService {
     }
 
 
-    private EmployerRepository employerRepository;
     @Autowired
-    public EmployerService(EmployerRepository employerRepository) {
+    public EmployerService(EmployerRepository employerRepository, ProvinceRepository provinceRepository) {
+        this.provinceRepository = provinceRepository;
         this.employerRepository = employerRepository;
     }
 
@@ -66,7 +48,7 @@ public class EmployerService {
             throw new BadInputException("Email " + request.getEmail() + " already exists");
         }
         // Check existence of provinceId
-        if (!employerRepository.existsByProvinceID(request.getProvinceId())) {
+        if (!provinceRepository.existsById(request.getProvinceId())) {
             throw new BadInputException("Province ID " + request.getProvinceId() + " does not exist");
         }
         // Generate timestamps for created_at and updated_at
@@ -74,7 +56,6 @@ public class EmployerService {
 
         // Create Employer object
         Employer employer = new Employer();
-        employer.setId(currentId++);
         employer.setEmail(request.getEmail());
         employer.setName(request.getName());
         employer.setProvince(request.getProvinceId());
@@ -123,7 +104,7 @@ public class EmployerService {
     }
 
     public List<EmployerResponseDTO> listEmployers(int page, int pageSize) {
-        List<Employer> employers = employerRepository.findAll(page, pageSize);
+        List<Employer> employers = employerRepository.findAll();
         List<EmployerResponseDTO> employerDTOs = employers.stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());

@@ -1,14 +1,14 @@
 package vn.unigap.api.dto.out;
 
 public class ApiResponseDTO {
+    private int errorCode;
     private int statusCode;
-    private String errorCode;
     private String message;
     private Object object;
 
-    public ApiResponseDTO(int statusCode, String errorCode, String message, Object object) {
-        this.statusCode = statusCode;
+    public ApiResponseDTO(int errorCode, int statusCode, String message, Object object) {
         this.errorCode = errorCode;
+        this.statusCode = statusCode;
         this.message = message;
         this.object = object;
     }
@@ -21,11 +21,11 @@ public class ApiResponseDTO {
         this.statusCode = statusCode;
     }
 
-    public String getErrorCode() {
+    public int getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(String errorCode) {
+    public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
 
