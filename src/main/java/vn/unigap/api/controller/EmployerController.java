@@ -54,7 +54,7 @@ public class EmployerController {
         //Update employer
         try {
             Employer employer = employerService.updateEmployer(id, requestUpdateDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employer updated " +
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO(0, 200, "Employer updated " +
                     "successfully", employer));
         } catch (Exception e) {
             return toApiResponse(e);
@@ -65,7 +65,7 @@ public class EmployerController {
     public ResponseEntity<ApiResponseDTO> getEmployer(@PathVariable long id) {
         try {
             Employer employer = employerService.getEmployer(id);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employer " +
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO(0, 200, "Employer " +
                     "retrieved" +
                     " successfully", employer));
         } catch (Exception e) {
@@ -77,8 +77,10 @@ public class EmployerController {
     public ResponseEntity<ApiResponseDTO> listEmployers(@RequestParam(defaultValue = "1") int page,
                                                         @RequestParam(defaultValue = "10") int pageSize) {
         try {
-            List<EmployerResponseDTO> employerResponseDTO = employerService.listEmployers(page, pageSize);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employers " +
+            List<EmployerResponseDTO> employerResponseDTO =
+                    employerService.listEmployers(page, pageSize).stream().map(this::mapToResponseDTO).toList();
+
+            return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO(0, 200, "Employers " +
                     "retrieved successfully", employerResponseDTO));
 
         } catch (Exception e) {
@@ -97,5 +99,16 @@ public class EmployerController {
             return toApiResponse(e);
         }
 
+    }
+
+    private EmployerResponseDTO mapToResponseDTO(Employer employer) {
+        EmployerResponseDTO responseDTO = new EmployerResponseDTO();
+        responseDTO.setId(employer.getId());
+        responseDTO.setEmail(employer.getEmail());
+        responseDTO.setName(employer.getName());
+        responseDTO.setProvinceId(employer.getProvinceId());
+        responseDTO.setProvinceName(employer.getProvinceName());
+        responseDTO.setDescription(employer.getDescription());
+        return responseDTO;
     }
 }

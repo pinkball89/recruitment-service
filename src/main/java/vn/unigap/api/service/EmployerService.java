@@ -1,16 +1,20 @@
 package vn.unigap.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import vn.unigap.api.dto.in.EmployerCreateRequestDTO;
 import vn.unigap.api.dto.in.EmployerUpdateRequestDTO;
-import vn.unigap.api.dto.out.EmployerResponseDTO;
 import vn.unigap.api.entity.Employer;
+import vn.unigap.api.entity.Province;
 import vn.unigap.api.repository.EmployerRepository;
 import vn.unigap.api.repository.ProvinceRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 
 @Service
@@ -58,7 +62,9 @@ public class EmployerService {
         Employer employer = new Employer();
         employer.setEmail(request.getEmail());
         employer.setName(request.getName());
-        employer.setProvince(request.getProvinceId());
+        //Fetch the Province object based on the provided provinceId
+        Province province = provinceRepository.findById(request.getProvinceId()).orElse(null);
+        employer.setProvince(province);
         employer.setDescription(request.getDescription());
         employer.setCreated_at(now);
         employer.setUpdated_at(now);
@@ -79,10 +85,16 @@ public class EmployerService {
         if (!employerRepository.existsById(id)) {
             throw new NotFoundException("Employer ID " + id + " Not Found");
         }
+        // Check existence of provinceId
+        if (!provinceRepository.existsById(request.getProvinceId())) {
+            throw new BadInputException("Province ID " + request.getProvinceId() + " does not exist");
+        }
         //Update employer information
         Employer employer = employerRepository.findById(id);
         employer.setName(request.getName());
-        employer.setProvince(request.getProvinceId());
+        //Fetch the Province object based on the provided provinceId
+        Province province = provinceRepository.findById(request.getProvinceId()).orElse(null);
+        employer.setProvince(province);
         employer.setDescription(request.getDescription());
         employer.setUpdated_at(new Date());
 
@@ -97,19 +109,13 @@ public class EmployerService {
             throw new NotFoundException("Employer ID " + id + " Not Found");
         }
 
-        Employer employer = employerRepository.findById(id);
-        EmployerResponseDTO responseDTO = mapToResponseDTO(employer);
-
-        return employer;
+        return employerRepository.findById(id);
     }
 
-    public List<EmployerResponseDTO> listEmployers(int page, int pageSize) {
-        List<Employer> employers = employerRepository.findAll();
-        List<EmployerResponseDTO> employerDTOs = employers.stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
-
-        return employerDTOs;
+    public List<Employer> listEmployers(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page -1 , pageSize, Sort.by("name"));
+        Page<Employer> employers = employerRepository.findAll(pageable);
+        return employers.stream().toList();
     }
 
     public Employer deleteEmployer(long id) {
@@ -121,20 +127,4 @@ public class EmployerService {
 
         return employer;
     }
-
-    private EmployerResponseDTO mapToResponseDTO(Employer employer) {
-        EmployerResponseDTO responseDTO = new EmployerResponseDTO();
-        responseDTO.setId(employer.getId());
-        responseDTO.setEmail(employer.getEmail());
-        responseDTO.setName(employer.getName());
-        responseDTO.setProvinceId(employer.getProvince());
-        responseDTO.setProvinceName(getProvinceName(employer.getProvince()));
-        responseDTO.setDescription(employer.getDescription());
-        return responseDTO;
-    }
-
-    private String getProvinceName(int province) {
-        return "Not know yet";
-    }
-
 }

@@ -1,5 +1,9 @@
 package vn.unigap.api.dto.out;
 
+import vn.unigap.api.entity.Province;
+
+import java.util.Optional;
+
 public class EmployerResponseDTO {
     private long id;
     private String email;
@@ -7,6 +11,7 @@ public class EmployerResponseDTO {
     private int provinceId;
     private String provinceName;
     private String description;
+    Province province;
 
     // Constructors, getters, and setters...
 
@@ -60,9 +65,7 @@ public class EmployerResponseDTO {
         return provinceName;
     }
 
-    public void setProvinceName(String provinceName) {
-        this.provinceName = provinceName;
-    }
+    public void setProvinceName(String provinceName) {this.provinceName = provinceName; }
 
     public String getDescription() {
         return description;

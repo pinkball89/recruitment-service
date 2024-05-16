@@ -23,8 +23,14 @@ public class Employer {
     @Column(name= "Name", length = 256)
     private String name;
 
-    @Column(name= "Province")
-    private int province;
+    @ManyToOne
+    @JoinColumn(name= "Province")
+    private Province province;
+
+    //@ManyToOne: many employer instances can be associated with one Province instance
+    //@JoinColumn: join column relationship, indicates that the column name "province" in the employer table will be
+    // used to join with the "id" column in the referenced table (Province)
+
 
     @Lob
     @Column(name= "Description", length = 256)
@@ -60,12 +66,16 @@ public class Employer {
         this.name = name;
     }
 
-    public int getProvince() {
-        return province;
+    public int getProvinceId() {
+        return province.getId();
     }
 
-    public void setProvince(int province) {
+    public void setProvince(Province province) {
         this.province = province;
+    }
+
+    public String getProvinceName() {
+        return province.getName();
     }
 
     public String getDescription() {
