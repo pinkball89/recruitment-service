@@ -1,7 +1,9 @@
 package vn.unigap.api.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "JOB_PROVINCE")
 public class Province {
@@ -17,22 +19,6 @@ public class Province {
 
     public Province(Integer id, String name) {
         this.Id = id;
-        this.name = name;
-    }
-
-    public Integer getId() {
-        return Id;
-    }
-
-    public void setId(Integer id) {
-        Id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
         this.name = name;
     }
 }
