@@ -10,6 +10,7 @@ import vn.unigap.api.dto.in.EmployerCreateRequestDTO;
 import vn.unigap.api.dto.in.EmployerUpdateRequestDTO;
 import vn.unigap.api.entity.Employer;
 import vn.unigap.api.entity.Province;
+import vn.unigap.api.exception.ApiException;
 import vn.unigap.api.repository.EmployerRepository;
 import vn.unigap.api.repository.ProvinceRepository;
 
@@ -22,18 +23,6 @@ public class EmployerService {
     private final ProvinceRepository provinceRepository;
     private final EmployerRepository employerRepository;
 
-    public static class BadInputException extends RuntimeException {
-        public BadInputException(String message) {
-            super(message);
-        }
-    }
-
-    public static class NotFoundException extends RuntimeException {
-        public NotFoundException(String message) {
-            super(message);
-        }
-    }
-
 
     @Autowired
     public EmployerService(EmployerRepository employerRepository, ProvinceRepository provinceRepository) {
@@ -45,15 +34,15 @@ public class EmployerService {
         // Validate input data
         List<String> validationErrors = request.validate();
         if (!validationErrors.isEmpty()) {
-            throw new BadInputException(validationErrors.toString());
+            throw new ApiException.BadInputException(validationErrors.toString());
         }
         // Check email uniqueness
         if (employerRepository.existsByEmail(request.getEmail())) {
-            throw new BadInputException("Email " + request.getEmail() + " already exists");
+            throw new ApiException.BadInputException("Email " + request.getEmail() + " already exists");
         }
         // Check existence of provinceId
         if (!provinceRepository.existsById(request.getProvinceId())) {
-            throw new BadInputException("Province ID " + request.getProvinceId() + " does not exist");
+            throw new ApiException.BadInputException("Province ID " + request.getProvinceId() + " does not exist");
         }
         // Generate timestamps for created_at and updated_at
         Date now = new Date();
@@ -79,15 +68,15 @@ public class EmployerService {
         //validate input data
         List<String> validationErrors = request.validateUpdate(id);
         if (!validationErrors.isEmpty()) {
-            throw new BadInputException(validationErrors.toString());
+            throw new ApiException.BadInputException(validationErrors.toString());
         }
         //Check if employer id exists
         if (!employerRepository.existsById(id)) {
-            throw new NotFoundException("Employer ID " + id + " Not Found");
+            throw new ApiException.NotFoundException("Employer ID " + id + " Not Found");
         }
         // Check existence of provinceId
         if (!provinceRepository.existsById(request.getProvinceId())) {
-            throw new BadInputException("Province ID " + request.getProvinceId() + " does not exist");
+            throw new ApiException.BadInputException("Province ID " + request.getProvinceId() + " does not exist");
         }
         //Update employer information
         Employer employer = employerRepository.findById(id);
@@ -106,7 +95,7 @@ public class EmployerService {
 
     public Employer getEmployer(long id) {
         if (!employerRepository.existsById(id)) {
-            throw new NotFoundException("Employer ID " + id + " Not Found");
+            throw new ApiException.NotFoundException("Employer ID " + id + " Not Found");
         }
 
         return employerRepository.findById(id);
@@ -120,7 +109,7 @@ public class EmployerService {
 
     public Employer deleteEmployer(long id) {
         if (!employerRepository.existsById(id)) {
-            throw new NotFoundException("Employer ID " + id + " Not Found");
+            throw new ApiException.NotFoundException("Employer ID " + id + " Not Found");
         }
         Employer employer = employerRepository.findById(id);
         employerRepository.deleteById(id);

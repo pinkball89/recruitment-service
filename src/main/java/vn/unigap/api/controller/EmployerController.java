@@ -9,6 +9,7 @@ import vn.unigap.api.dto.in.EmployerUpdateRequestDTO;
 import vn.unigap.api.dto.out.ApiResponseDTO;
 import vn.unigap.api.dto.out.EmployerResponseDTO;
 import vn.unigap.api.entity.Employer;
+import vn.unigap.api.exception.ExceptionHandler;
 import vn.unigap.api.service.EmployerService;
 
 import java.util.List;
@@ -32,19 +33,7 @@ public class EmployerController {
                     .body(new ApiResponseDTO(0, 201, "Employer created successfully", employer));
 
         } catch (Exception e) {
-            return toApiResponse(e);
-        }
-    }
-
-    private static ResponseEntity<ApiResponseDTO> toApiResponse(Exception e) {
-        if (e instanceof EmployerService.BadInputException) {
-            //Catching our own BadInputException
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseDTO(1, 400, e.getMessage(), null));
-        } else {
-            //Catching any exception that is not created intentionally
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).
-                    body(new ApiResponseDTO(1, 500, e.getMessage(), null));
+            return ExceptionHandler.toApiResponse(e);
         }
     }
 
@@ -57,7 +46,7 @@ public class EmployerController {
             return ResponseEntity.status(HttpStatus.OK).body(new ApiResponseDTO(0, 200, "Employer updated " +
                     "successfully", employer));
         } catch (Exception e) {
-            return toApiResponse(e);
+            return ExceptionHandler.toApiResponse(e);
         }
     }
 
@@ -69,7 +58,7 @@ public class EmployerController {
                     "retrieved" +
                     " successfully", employer));
         } catch (Exception e) {
-            return toApiResponse(e);
+            return ExceptionHandler.toApiResponse(e);
         }
     }
 
@@ -84,7 +73,7 @@ public class EmployerController {
                     "retrieved successfully", employerResponseDTO));
 
         } catch (Exception e) {
-            return toApiResponse(e);
+            return ExceptionHandler.toApiResponse(e);
         }
 
     }
@@ -96,7 +85,7 @@ public class EmployerController {
             return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponseDTO(0, 200, "Employer " +
                     "deleted successfully", employer));
         } catch (Exception e) {
-            return toApiResponse(e);
+            return ExceptionHandler.toApiResponse(e);
         }
 
     }
